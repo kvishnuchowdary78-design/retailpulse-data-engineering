@@ -1,5 +1,5 @@
-
 from pathlib import Path
+
 import duckdb
 
 
@@ -18,8 +18,6 @@ class WarehouseLoader:
             parents=True, exist_ok=True
         )
 
-        connection = duckdb.connect(str(self.database_path))
-
         tables = {
             "dim_customer": "dim_customer.parquet",
             "dim_product": "dim_product.parquet",
@@ -27,7 +25,11 @@ class WarehouseLoader:
             "fact_sales": "fact_sales.parquet",
         }
 
+        connection = duckdb.connect(str(self.database_path))
+
         try:
+            connection.execute("BEGIN TRANSACTION")
+
             for table_name, filename in tables.items():
                 parquet_path = (
                     self.parquet_dir / filename
@@ -46,7 +48,13 @@ class WarehouseLoader:
 
                 print(f"{table_name}: {count} rows loaded")
 
+            connection.execute("COMMIT")
             print("\nWAREHOUSE LOAD COMPLETED")
+
+        except Exception:
+            connection.execute("ROLLBACK")
+            print("\nWAREHOUSE LOAD FAILED - TRANSACTION ROLLED BACK")
+            raise
 
         finally:
             connection.close()
