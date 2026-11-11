@@ -8,7 +8,7 @@ RetailPulse is a batch data engineering platform designed to demonstrate a compl
 
 The platform processes order and customer data from CSV and JSON sources, identifies invalid records, transforms accepted data into dimensional tables, loads the data into DuckDB, and executes analytical queries.
 
-It also includes automated data quality monitoring, pipeline execution reports, and unit tests.
+It also includes automated data quality monitoring, pipeline execution reports, transactional warehouse loading, and automated tests.
 
 ## 2. Key Features
 
@@ -20,11 +20,11 @@ It also includes automated data quality monitoring, pipeline execution reports, 
 - Dimensional data modeling.
 - Parquet-based intermediate storage.
 - DuckDB analytical warehouse.
-- Idempotent warehouse loading.
+- Idempotent and transactional warehouse loading.
 - Automated data quality monitoring.
 - Analytical SQL queries.
 - Pipeline execution-time monitoring.
-- Automated unit and warehouse tests.
+- Automated tests covering ingestion, validation, transformation, pipeline execution, and warehouse loading.
 
 ## 3. Architecture
 
@@ -34,36 +34,36 @@ It also includes automated data quality monitoring, pipeline execution reports, 
             +--------+--------+
                      |
                      v
-             DATA INGESTION
+                DATA INGESTION
                      |
                      v
-             DATA VALIDATION
-                /        \
-               v          v
-          Accepted      Rejected
-           Records      Records
-               |
-               v
-          TRANSFORMATION
-               |
-               v
-       DIMENSIONAL MODEL
-               |
-               v
-         PARQUET STORAGE
-               |
-               v
-          DUCKDB WAREHOUSE
-               |
-          +----+------+
-          |           |
-          v           v
-      MONITORING   ANALYTICS
-          |           |
-          +-----+-----+
-                |
-                v
-         PIPELINE REPORT
+                DATA VALIDATION
+                  /        \
+                 v          v
+             Accepted    Rejected
+              Records    Records
+                 |
+                 v
+             TRANSFORMATION
+                 |
+                 v
+             DIMENSIONAL MODEL
+                 |
+                 v
+             PARQUET STORAGE
+                 |
+                 v
+             DUCKDB WAREHOUSE
+                 |
+             +---+------+
+             |          |
+             v          v
+          MONITORING  ANALYTICS
+             |          |
+             +----+-----+
+                  |
+                  v
+             PIPELINE REPORT
 ```
 
 ## 4. Technology Stack
@@ -88,6 +88,17 @@ retailpulse-data-engineering/
 │   └── sample_inputs/
 │       ├── orders.csv
 │       └── customers.json
+│
+├── docs/
+│   ├── DATA_DICTIONARY_AND_DESIGN.md
+│   └── EXPECTED_RESULTS.md
+│
+├── outputs/
+│   └── sample_outputs/
+│       ├── validation_report.json
+│       ├── monitoring_report.json
+│       ├── pipeline_report.json
+│       └── reconciliation.txt
 │
 ├── prompt_history/
 │   ├── README.md
@@ -119,6 +130,9 @@ retailpulse-data-engineering/
 │           └── queries.py
 │
 ├── tests/
+│   ├── test_ingestion.py
+│   ├── test_pipeline.py
+│   ├── test_transformation.py
 │   ├── test_validation.py
 │   └── test_warehouse.py
 │
@@ -128,7 +142,7 @@ retailpulse-data-engineering/
 └── pytest.ini
 ```
 
-Generated raw data, processed files, Parquet files, DuckDB databases, and execution reports are created locally when the pipeline runs. They are excluded from Git.
+Generated raw data, processed files, Parquet files, DuckDB databases, and execution reports are created locally when the pipeline runs. The reproducible sample inputs and selected sample evidence reports are committed to Git.
 
 ## 6. Data Sources
 
@@ -193,6 +207,8 @@ The warehouse contains four tables.
 
 The fact table includes sales measures and relevant customer, product, and date keys.
 
+The data dictionary, naming conventions, assumptions, design decisions, and trade-offs are documented in [DATA_DICTIONARY_AND_DESIGN.md](docs/DATA_DICTIONARY_AND_DESIGN.md).
+
 ## 9. Data Quality Monitoring
 
 The monitoring module executes seven checks:
@@ -230,38 +246,51 @@ The platform executes analytical queries for:
 
 ```bash
 git clone https://github.com/kvishnuchowdary78-design/retailpulse-data-engineering.git
-
 cd retailpulse-data-engineering
 ```
 
 ### Create a virtual environment
 
-Windows PowerShell:
+**Windows PowerShell:**
 
 ```powershell
 python -m venv .venv
-
 .venv\Scripts\Activate.ps1
+```
+
+**Linux / macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 ### Install dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ## 12. Run Using Included Sample Data
 
 The repository includes small synthetic sample datasets for quick verification.
 
-Copy the sample files into the raw input directory using PowerShell:
+Copy the sample files into the raw input directory.
+
+**Windows PowerShell:**
 
 ```powershell
 New-Item -ItemType Directory -Force data\raw
+Copy-Item data\sample_inputs\orders.csv data\raw\orders.csv -Force
+Copy-Item data\sample_inputs\customers.json data\raw\customers.json -Force
+```
 
-Copy-Item data\sample_inputs\orders.csv data\raw\orders.csv
+**Linux / macOS:**
 
-Copy-Item data\sample_inputs\customers.json data\raw\customers.json
+```bash
+mkdir -p data/raw
+cp data/sample_inputs/orders.csv data/raw/orders.csv
+cp data/sample_inputs/customers.json data/raw/customers.json
 ```
 
 Run the complete pipeline:
@@ -272,12 +301,26 @@ python -m scripts.run_pipeline
 
 The included sample dataset contains 106 order records, including controlled data quality edge cases.
 
+Expected sample results:
+
+| Metric | Result |
+|---|---:|
+| Input orders | 106 |
+| Accepted orders | 101 |
+| Rejected orders | 5 |
+| Accepted customers | 1,000 |
+| Fact sales rows | 101 |
+| Monitoring checks passed | 7/7 |
+| Pipeline stages successful | 6/6 |
+
+See [EXPECTED_RESULTS.md](docs/EXPECTED_RESULTS.md) and [sample execution evidence](outputs/sample_outputs/reconciliation.txt) for detailed results.
+
 ## 13. Generate a Larger Dataset
 
 To generate 100,000 synthetic order records and 1,000 customers:
 
 ```bash
-python -m scripts.generate_data --orders 100000 --seed 42
+python -m scripts.generate_data --orders 100000 --customers 1000 --seed 42
 ```
 
 The generator introduces controlled data quality edge cases for validation testing.
@@ -303,20 +346,29 @@ Execution results and stage timings are written to the local outputs directory.
 
 ## 15. Run Automated Tests
 
+Run the complete test suite:
+
 ```bash
 python -m pytest -v
 ```
 
-The test suite covers validation scenarios and warehouse loading behavior, including idempotency.
+The current test suite contains **37 passing tests** covering:
+
+- Ingestion and source schema handling.
+- Missing files and malformed JSON.
+- Data validation scenarios.
+- Transformation and dimensional data creation.
+- Pipeline success and failure handling.
+- Warehouse loading, idempotency, and transaction rollback.
 
 ## 16. Performance Benchmark
 
 Test environment:
 
-- Operating system: Windows 11
-- Python: 3.10.11
-- Input orders: 100,006
-- Input customers: 1,000
+- Operating system: Windows 11.
+- Python: 3.10.11.
+- Input orders: 100,006.
+- Input customers: 1,000.
 
 Verified local benchmark:
 
@@ -330,9 +382,9 @@ Verified local benchmark:
 | Data quality checks | 7/7 passed |
 | Pipeline stages | 6/6 successful |
 | Total pipeline time | 6.33 seconds |
-| Automated tests | 17 passed |
+| Automated tests | 37 passed |
 
-The benchmark represents one local execution and is environment-dependent.
+The benchmark represents a local execution and is environment-dependent. The 100K benchmark timing and the sample dataset timing are separate executions.
 
 ## 17. Pipeline Observability
 
@@ -345,39 +397,74 @@ The pipeline generates a JSON execution report containing:
 - Failed stage, if applicable.
 - Individual stage durations.
 
-Report location:
+Local report locations:
 
 ```text
 outputs/pipeline_report.json
-```
-
-Additional reports:
-
-```text
 outputs/validation_report.json
 outputs/monitoring_report.json
 ```
 
-These reports are generated locally and are not committed to the repository.
+Selected sample reports are committed under `outputs/sample_outputs/`.
 
-## 18. Idempotency
+The current implementation uses console output and JSON reports rather than structured application logging.
+
+## 18. Idempotency and Transactional Loading
 
 The warehouse loader uses table replacement from generated Parquet datasets rather than blindly appending records.
 
 This prevents duplicate fact records when the same warehouse load is executed again.
 
-Warehouse idempotency is verified through automated tests.
+The warehouse table replacements are performed inside a DuckDB transaction. If a table replacement fails, the transaction is rolled back so that the warehouse does not retain a partially replaced set of tables.
 
-## 19. Current Limitations
+Automated tests verify repeat-load behavior and rollback on a simulated failed load.
+
+## 19. Recovery, Restart, and Backfill
+
+### Rerun and restart
+
+The pipeline is orchestrated as a sequence of stages. If a stage fails, the pipeline records the failure and exits with a non-zero status.
+
+To restart, correct the issue and rerun the complete pipeline from the project root:
+
+```bash
+python -m scripts.run_pipeline
+```
+
+The pipeline starts again from ingestion and rebuilds its downstream outputs from the current raw input files. Warehouse table replacements are transactional, so a failed warehouse load rolls back its table replacements.
+
+This is a full pipeline rerun strategy; the current implementation does not provide automatic stage-level retry or checkpoint-based resumption.
+
+### Backfill
+
+To process a historical batch, place the intended historical orders CSV and corresponding customer JSON in `data/raw/`, using the expected filenames and schemas. Then rerun the complete pipeline.
+
+The current backfill approach is a full rebuild for the supplied batch, not an incremental merge into historical warehouse data. Preserve previous source files and reports separately if historical run retention is required.
+
+## 20. Optimization and Design Trade-offs
+
+### Parquet intermediate storage
+
+The transformation stage writes dimensional and fact datasets as Parquet before warehouse loading.
+
+Parquet is a columnar storage format suited to analytical workloads. It supports typed data representation and allows analytical engines such as DuckDB to work with selected columns efficiently.
+
+This is the selected intermediate storage optimization in RetailPulse. The project does not claim a measured CSV-versus-Parquet speedup because a controlled comparative benchmark has not been performed.
+
+Other design trade-offs and assumptions are described in [DATA_DICTIONARY_AND_DESIGN.md](docs/DATA_DICTIONARY_AND_DESIGN.md).
+
+## 21. Current Limitations
 
 - The pipeline currently processes batch data rather than streaming events.
 - Input files are local CSV and JSON files.
 - Automatic retry and checkpoint-based recovery are not implemented.
+- Backfill currently uses a full rebuild rather than incremental historical merging.
 - The warehouse is a local DuckDB database.
 - Synthetic data is used for reproducible demonstrations.
+- Structured application logging is not implemented; execution details are printed to the console and recorded in reports.
 - Pipeline execution time depends on the local environment and dataset.
 
-## 20. Future Improvements
+## 22. Future Improvements
 
 - Incremental data processing.
 - Checkpoint-based recovery.
@@ -388,15 +475,15 @@ Warehouse idempotency is verified through automated tests.
 - Cloud object storage integration.
 - Workflow orchestration.
 
-## 21. AI Usage Disclosure
+## 23. AI Usage Disclosure
 
-ChatGPT was used as a development assistant for code suggestions, debugging, testing guidance, performance instrumentation, and documentation.
+ChatGPT was used as a development assistant for code suggestions, debugging, testing guidance, and documentation.
 
 The prompt history is maintained in the `prompt_history/` directory. Prompt descriptions are identified as reconstructed summaries where they are not verbatim.
 
 The project author is responsible for understanding and verifying the final implementation.
 
-## 22. Author
+## 24. Author
 
 **K Vishnu**
 
