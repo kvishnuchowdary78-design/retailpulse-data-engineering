@@ -1,9 +1,10 @@
-RETAILPULSE - SAMPLE DATA RECONCILIATION
+﻿RETAILPULSE - SAMPLE DATA RECONCILIATION
 ========================================
 
 Dataset:
   Orders source: orders.csv
   Customers source: customers.json
+  Generation seed: 42
 
 Input Summary:
   Total input orders: 106
@@ -13,6 +14,13 @@ Order Reconciliation:
   Accepted orders: 101
   Rejected orders: 5
   Late-arriving accepted orders: 1
+
+Rejected Order Scenarios:
+  O00000001: Duplicate order line
+  O_MISSING_CUSTOMER_001: Missing required customer ID
+  O_NEGATIVE_QTY_001: Invalid quantity
+  O_UNKNOWN_CUSTOMER_001: Unknown customer ID
+  O_INVALID_PRODUCT_001: Unknown product ID
 
 Reconciliation Check:
   Input orders = Accepted orders + Rejected orders
@@ -31,18 +39,31 @@ Data Quality Monitoring:
   Failed checks: 0
   Overall result: PASS
 
+Analytics:
+  Total order lines: 101
+  Total units sold: 318
+  Total revenue: 4753600.00
+  Late-arriving orders: 1
+
 Pipeline:
   Total stages: 6
   Successful stages: 6
   Failed stages: 0
-  Total duration: 4.327 seconds
+  Total duration: 2.764 seconds
   Overall result: SUCCESS
+
+Test Suite:
+  Total tests: 37
+  Passed: 37
+  Failed: 0
 
 Evidence:
   validation_report.json
   monitoring_report.json
   pipeline_report.json
+  reconciliation.txt
 
 Note:
   These results represent the sample dataset execution
   completed on November 11, 2026.
+  Execution duration is environment-dependent.

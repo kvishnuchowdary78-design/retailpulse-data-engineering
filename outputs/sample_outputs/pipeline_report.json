@@ -1,9 +1,9 @@
 {
     "pipeline_name": "RetailPulse",
     "status": "SUCCESS",
-    "started_at": "2026-11-11T09:53:42.032146+00:00",
-    "ended_at": "2026-11-11T09:53:46.358277+00:00",
-    "total_duration_seconds": 4.327,
+    "started_at": "2026-11-11T10:45:40.706559+00:00",
+    "ended_at": "2026-11-11T10:45:43.471505+00:00",
+    "total_duration_seconds": 2.764,
     "completed_steps": [
         "INGESTION",
         "VALIDATION",
@@ -16,11 +16,11 @@
     "total_steps": 6,
     "successful_steps": 6,
     "stage_durations_seconds": {
-        "INGESTION": 0.986,
-        "VALIDATION": 1.057,
-        "TRANSFORMATION": 0.914,
-        "WAREHOUSE": 0.299,
-        "MONITORING": 0.209,
-        "ANALYTICS": 0.858
+        "INGESTION": 0.635,
+        "VALIDATION": 0.627,
+        "TRANSFORMATION": 0.62,
+        "WAREHOUSE": 0.14,
+        "MONITORING": 0.112,
+        "ANALYTICS": 0.629
     }
 }

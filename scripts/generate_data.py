@@ -80,22 +80,25 @@ def add_edge_cases(orders, customers):
     if len(orders) < 6:
         raise ValueError("Generate at least 6 orders.")
 
-    # 1. Duplicate order line
+    # 1. Duplicate order line: intentionally reuses the original key
     duplicate = orders[0].copy()
     orders.append(duplicate)
 
-    # 2. Missing customer ID
+    # 2. Missing customer ID: unique order key
     missing_customer = orders[1].copy()
+    missing_customer["order_id"] = "O_MISSING_CUSTOMER_001"
     missing_customer["customer_id"] = ""
     orders.append(missing_customer)
 
-    # 3. Negative quantity
+    # 3. Negative quantity: unique order key
     negative_quantity = orders[2].copy()
+    negative_quantity["order_id"] = "O_NEGATIVE_QTY_001"
     negative_quantity["quantity"] = -2
     orders.append(negative_quantity)
 
-    # 4. Unknown customer
+    # 4. Unknown customer: unique order key
     unknown_customer = orders[3].copy()
+    unknown_customer["order_id"] = "O_UNKNOWN_CUSTOMER_001"
     unknown_customer["customer_id"] = "C99999"
     orders.append(unknown_customer)
 
@@ -106,8 +109,9 @@ def add_edge_cases(orders, customers):
     late_order["order_timestamp"] = "2026-10-01T00:00:00Z"
     orders.append(late_order)
 
-    # 6. Invalid product
+    # 6. Invalid product: unique order key
     invalid_product = orders[5].copy()
+    invalid_product["order_id"] = "O_INVALID_PRODUCT_001"
     invalid_product["product_id"] = "P999"
     orders.append(invalid_product)
 
@@ -136,6 +140,12 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if args.orders < 6:
+        parser.error("--orders must be at least 6.")
+
+    if args.customers < 1:
+        parser.error("--customers must be at least 1.")
 
     rng = random.Random(args.seed)
 
@@ -176,6 +186,7 @@ def main():
         )
 
     print(f"Order records generated: {len(orders)}")
+    print(f"Customer records generated: {len(customers)}")
     print(f"CSV file: {orders_path}")
     print(f"JSON file: {customers_path}")
 

@@ -121,6 +121,9 @@ def main():
 
         print("Report: outputs/pipeline_report.json")
 
+    if status == "FAILED":
+       raise SystemExit(1)
+
 
 if __name__ == "__main__":
     main()
