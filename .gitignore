@@ -1,0 +1,37 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Generated data
+data/raw/
+data/processed/
+data/quarantine/
+
+# Generated databases
+*.duckdb
+*.db
+database/*
+
+# Generated reports
+outputs/*
+!outputs/sample_outputs/
+!outputs/sample_outputs/**
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
