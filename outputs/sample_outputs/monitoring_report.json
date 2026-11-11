@@ -1,0 +1,43 @@
+{
+    "status": "PASS",
+    "total_checks": 7,
+    "passed_checks": 7,
+    "failed_checks": 0,
+    "checks": [
+        {
+            "check": "Accepted orders vs warehouse fact rows",
+            "status": "PASS",
+            "details": "Expected 101, found 101"
+        },
+        {
+            "check": "Duplicate fact keys",
+            "status": "PASS",
+            "details": "Duplicate keys found: 0"
+        },
+        {
+            "check": "Required fact fields",
+            "status": "PASS",
+            "details": "Rows with missing required values: 0"
+        },
+        {
+            "check": "Customer referential integrity",
+            "status": "PASS",
+            "details": "Missing customer references: 0"
+        },
+        {
+            "check": "Product referential integrity",
+            "status": "PASS",
+            "details": "Missing product references: 0"
+        },
+        {
+            "check": "Revenue calculation",
+            "status": "PASS",
+            "details": "Revenue mismatches: 0"
+        },
+        {
+            "check": "Input order reconciliation",
+            "status": "PASS",
+            "details": "Input: 106, accepted: 101, rejected: 5"
+        }
+    ]
+}

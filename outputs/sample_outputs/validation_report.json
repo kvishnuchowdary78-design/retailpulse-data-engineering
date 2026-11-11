@@ -1,0 +1,14 @@
+{
+    "run_id": "6c7b28d7-cdc2-4dcb-b995-17297b2b74b0",
+    "status": "SUCCESS",
+    "started_at": "2026-11-11T09:53:43.868565+00:00",
+    "ended_at": "2026-11-11T09:53:43.949190+00:00",
+    "input_orders": 106,
+    "accepted_orders": 101,
+    "rejected_orders": 5,
+    "input_customers": 1000,
+    "accepted_customers": 1000,
+    "rejected_customers": 0,
+    "late_arriving_orders": 1,
+    "ingestion_status": "SUCCESS"
+}

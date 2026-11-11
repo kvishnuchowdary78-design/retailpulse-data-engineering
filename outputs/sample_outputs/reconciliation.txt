@@ -1,0 +1,48 @@
+RETAILPULSE - SAMPLE DATA RECONCILIATION
+========================================
+
+Dataset:
+  Orders source: orders.csv
+  Customers source: customers.json
+
+Input Summary:
+  Total input orders: 106
+  Total input customers: 1000
+
+Order Reconciliation:
+  Accepted orders: 101
+  Rejected orders: 5
+  Late-arriving accepted orders: 1
+
+Reconciliation Check:
+  Input orders = Accepted orders + Rejected orders
+  106 = 101 + 5
+  Result: PASS
+
+Warehouse:
+  Fact sales rows: 101
+  Customer dimension rows: 1000
+  Product dimension rows: 5
+  Date dimension rows: 11
+
+Data Quality Monitoring:
+  Total checks: 7
+  Passed checks: 7
+  Failed checks: 0
+  Overall result: PASS
+
+Pipeline:
+  Total stages: 6
+  Successful stages: 6
+  Failed stages: 0
+  Total duration: 4.327 seconds
+  Overall result: SUCCESS
+
+Evidence:
+  validation_report.json
+  monitoring_report.json
+  pipeline_report.json
+
+Note:
+  These results represent the sample dataset execution
+  completed on November 11, 2026.
