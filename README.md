@@ -1,7 +1,6 @@
-
 # RetailPulse – End-to-End Data Engineering Platform
 
-An end-to-end data engineering project that ingests retail data from multiple sources, validates data quality, transforms records into a dimensional warehouse, and provides analytical insights using Python and DuckDB.
+An end-to-end data engineering platform that ingests retail data from multiple sources, validates data quality, transforms records into a dimensional warehouse, and provides analytical insights using Python and DuckDB.
 
 ## 1. Project Overview
 
@@ -84,25 +83,16 @@ It also includes automated data quality monitoring, pipeline execution reports, 
 
 ```text
 retailpulse-data-engineering/
-|
-├── config/
+│
 ├── data/
-│   ├── raw/
-│   ├── processed/
-│   ├── quarantine/
-│   └── sample_outputs/
-|
-├── database/
-|
-├── src/
-│   └── retailpulse/
-│       ├── ingestion/
-│       ├── validation/
-│       ├── transformation/
-│       ├── warehouse/
-│       ├── monitoring/
-│       └── analytics/
-|
+│   └── sample_inputs/
+│       ├── orders.csv
+│       └── customers.json
+│
+├── prompt_history/
+│   ├── README.md
+│   └── chatgpt_prompts.md
+│
 ├── scripts/
 │   ├── generate_data.py
 │   ├── run_ingestion.py
@@ -111,20 +101,34 @@ retailpulse-data-engineering/
 │   ├── run_warehouse.py
 │   ├── run_monitoring.py
 │   ├── run_analytics.py
-│   └── run_pipeline.py
-|
+│   ├── run_pipeline.py
+│   └── verify_data.py
+│
+├── src/
+│   └── retailpulse/
+│       ├── ingestion/
+│       │   └── loader.py
+│       ├── validation/
+│       │   └── validator.py
+│       ├── transformation/
+│       │   └── transform.py
+│       ├── warehouse/
+│       │   └── loader.py
+│       ├── monitoring/
+│       └── analytics/
+│           └── queries.py
+│
 ├── tests/
 │   ├── test_validation.py
 │   └── test_warehouse.py
-|
-├── outputs/
-├── docs/
-├── prompt_history/
-├── requirements.txt
-├── pytest.ini
+│
 ├── .gitignore
-└── README.md
+├── README.md
+├── requirements.txt
+└── pytest.ini
 ```
+
+Generated raw data, processed files, Parquet files, DuckDB databases, and execution reports are created locally when the pipeline runs. They are excluded from Git.
 
 ## 6. Data Sources
 
@@ -218,14 +222,14 @@ The platform executes analytical queries for:
 
 ### Prerequisites
 
-- Python 3.10 or later
-- Git
-- Visual Studio Code (optional)
+- Python 3.10 or later.
+- Git.
+- Visual Studio Code (optional).
 
 ### Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/retailpulse-data-engineering.git
+git clone https://github.com/kvishnuchowdary78-design/retailpulse-data-engineering.git
 
 cd retailpulse-data-engineering
 ```
@@ -246,25 +250,47 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-## 12. Generate Sample Data
+## 12. Run Using Included Sample Data
 
-Generate 100,000 synthetic order records and 1,000 customers:
+The repository includes small synthetic sample datasets for quick verification.
 
-```bash
-python -m scripts.generate_data --orders 100000 --seed 42
+Copy the sample files into the raw input directory using PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force data\raw
+
+Copy-Item data\sample_inputs\orders.csv data\raw\orders.csv
+
+Copy-Item data\sample_inputs\customers.json data\raw\customers.json
 ```
 
-The generator also introduces controlled data quality edge cases.
-
-## 13. Run the Complete Pipeline
-
-Execute all six pipeline stages:
+Run the complete pipeline:
 
 ```bash
 python -m scripts.run_pipeline
 ```
 
-The pipeline executes:
+The included sample dataset contains 106 order records, including controlled data quality edge cases.
+
+## 13. Generate a Larger Dataset
+
+To generate 100,000 synthetic order records and 1,000 customers:
+
+```bash
+python -m scripts.generate_data --orders 100000 --seed 42
+```
+
+The generator introduces controlled data quality edge cases for validation testing.
+
+Run the complete pipeline:
+
+```bash
+python -m scripts.run_pipeline
+```
+
+## 14. Pipeline Execution
+
+The pipeline executes six stages:
 
 1. Ingestion
 2. Validation
@@ -273,9 +299,9 @@ The pipeline executes:
 5. Monitoring
 6. Analytics
 
-Execution results are written to the outputs directory.
+Execution results and stage timings are written to the local outputs directory.
 
-## 14. Run Automated Tests
+## 15. Run Automated Tests
 
 ```bash
 python -m pytest -v
@@ -283,7 +309,7 @@ python -m pytest -v
 
 The test suite covers validation scenarios and warehouse loading behavior, including idempotency.
 
-## 15. Performance Benchmark
+## 16. Performance Benchmark
 
 Test environment:
 
@@ -292,7 +318,7 @@ Test environment:
 - Input orders: 100,006
 - Input customers: 1,000
 
-Verified benchmark from a local execution:
+Verified local benchmark:
 
 | Metric | Result |
 |---|---:|
@@ -306,9 +332,9 @@ Verified benchmark from a local execution:
 | Total pipeline time | 6.33 seconds |
 | Automated tests | 17 passed |
 
-The benchmark is from one local run and is environment-dependent.
+The benchmark represents one local execution and is environment-dependent.
 
-## 16. Pipeline Observability
+## 17. Pipeline Observability
 
 The pipeline generates a JSON execution report containing:
 
@@ -332,15 +358,17 @@ outputs/validation_report.json
 outputs/monitoring_report.json
 ```
 
-## 17. Idempotency
+These reports are generated locally and are not committed to the repository.
 
-The warehouse loader uses table replacement from the generated Parquet datasets rather than blindly appending records.
+## 18. Idempotency
+
+The warehouse loader uses table replacement from generated Parquet datasets rather than blindly appending records.
 
 This prevents duplicate fact records when the same warehouse load is executed again.
 
 Warehouse idempotency is verified through automated tests.
 
-## 18. Current Limitations
+## 19. Current Limitations
 
 - The pipeline currently processes batch data rather than streaming events.
 - Input files are local CSV and JSON files.
@@ -349,7 +377,7 @@ Warehouse idempotency is verified through automated tests.
 - Synthetic data is used for reproducible demonstrations.
 - Pipeline execution time depends on the local environment and dataset.
 
-## 19. Future Improvements
+## 20. Future Improvements
 
 - Incremental data processing.
 - Checkpoint-based recovery.
@@ -360,7 +388,15 @@ Warehouse idempotency is verified through automated tests.
 - Cloud object storage integration.
 - Workflow orchestration.
 
-## 20. Author
+## 21. AI Usage Disclosure
+
+ChatGPT was used as a development assistant for code suggestions, debugging, testing guidance, performance instrumentation, and documentation.
+
+The prompt history is maintained in the `prompt_history/` directory. Prompt descriptions are identified as reconstructed summaries where they are not verbatim.
+
+The project author is responsible for understanding and verifying the final implementation.
+
+## 22. Author
 
 **K Vishnu**
 
@@ -368,6 +404,8 @@ B.E. – Information Science and Engineering
 Bangalore Institute of Technology
 
 GitHub: https://github.com/kvishnuchowdary78-design
+
+**Repository:** https://github.com/kvishnuchowdary78-design/retailpulse-data-engineering
 
 ---
 
